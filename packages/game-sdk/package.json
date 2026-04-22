@@ -1,0 +1,17 @@
+{
+  "name": "@loop-play/game-sdk",
+  "version": "0.0.0",
+  "private": true,
+  "description": "postMessage bridge between the lobby and embedded games",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@loop-play/types": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@loop-play/game-21boom",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@loop-play/game-sdk": "workspace:*",
+    "@loop-play/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@loop-play/config": "workspace:*",
+    "typescript": "^6.0.3",
+    "vite": "^6.0.0"
+  }
+}
