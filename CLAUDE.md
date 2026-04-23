@@ -82,6 +82,24 @@ types   (no internal deps — types only, no runtime code)
 - Shared request/response types from `@loop-play/types`
 - Auth via sessions/tokens (implementation TBD: JWT or cookies)
 
+## Port Assignments
+
+Reserved ports — do not change without updating `games.ts` and `.env.example`.
+
+| App | Port | Env var |
+|---|---|---|
+| lobby (Next.js) | 3000 | — |
+| api (Hono) | 4000 | `API_PORT` |
+| game-21boom | 3001 | `NEXT_PUBLIC_GAME_21BOOM_URL` |
+| game-speed-quiz | 3002 | `NEXT_PUBLIC_GAME_SPEED_QUIZ_URL` |
+| game-word-sniper | 3003 | `NEXT_PUBLIC_GAME_WORD_SNIPER_URL` |
+| game-chain-reaction | 3004 | `NEXT_PUBLIC_GAME_CHAIN_REACTION_URL` |
+
+Next game slots: **3005, 3006, …**
+
+Each game's URL is read in `apps/lobby/src/lib/games.ts` via `process.env.NEXT_PUBLIC_GAME_*_URL` with a `http://localhost:<devPort>` fallback.
+Local overrides live in `apps/lobby/.env.local` (gitignored). Copy `.env.example` to get started.
+
 ## Running Locally
 ```bash
 pnpm install          # install all deps

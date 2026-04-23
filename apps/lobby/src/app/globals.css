@@ -6,6 +6,9 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-[#0a0a12] text-foreground;
+  }
+  html {
+    scroll-behavior: smooth;
   }
 }
