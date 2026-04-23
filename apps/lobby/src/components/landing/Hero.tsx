@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { HiArrowRight } from "react-icons/hi";
 import { IoPlayCircleOutline } from "react-icons/io5";
 import { BsStars } from "react-icons/bs";
@@ -44,10 +45,10 @@ export function Hero() {
 
         <AnimateIn variant="fadeUp" delay={320}>
           <div className="mt-10 flex flex-col sm:flex-row items-center gap-4">
-            <button className="group flex items-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-500 transition-all px-8 py-4 text-base font-semibold text-white shadow-lg shadow-violet-900/50">
+            <Link href="/dashboard" className="group flex items-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-500 transition-all px-8 py-4 text-base font-semibold text-white shadow-lg shadow-violet-900/50">
               Start Playing Free
               <HiArrowRight className="transition-transform group-hover:translate-x-1" />
-            </button>
+            </Link>
             <button className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all px-8 py-4 text-base font-medium text-white/80">
               <IoPlayCircleOutline className="text-xl text-violet-400" />
               Watch Trailer

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { HiMenuAlt3, HiX } from "react-icons/hi";
 import { IoGameControllerOutline } from "react-icons/io5";
 
@@ -28,9 +29,9 @@ export function Navbar() {
           <button className="text-sm text-white/70 hover:text-white transition-colors px-4 py-2">
             Sign in
           </button>
-          <button className="rounded-lg bg-violet-600 hover:bg-violet-500 transition-colors px-5 py-2 text-sm font-semibold text-white">
+          <Link href="/dashboard" className="rounded-lg bg-violet-600 hover:bg-violet-500 transition-colors px-5 py-2 text-sm font-semibold text-white">
             Play Free
-          </button>
+          </Link>
         </div>
 
         <button className="md:hidden text-white/70 hover:text-white" onClick={() => setOpen(!open)}>
@@ -44,9 +45,9 @@ export function Navbar() {
           <a href="#features" className="text-white/70 hover:text-white text-sm" onClick={() => setOpen(false)}>Features</a>
           <a href="#leaderboard" className="text-white/70 hover:text-white text-sm" onClick={() => setOpen(false)}>Leaderboard</a>
           <a href="#how" className="text-white/70 hover:text-white text-sm" onClick={() => setOpen(false)}>How it works</a>
-          <button className="rounded-lg bg-violet-600 px-5 py-2 text-sm font-semibold text-white w-full mt-2">
+          <Link href="/dashboard" className="rounded-lg bg-violet-600 px-5 py-2 text-sm font-semibold text-white w-full mt-2 text-center block">
             Play Free
-          </button>
+          </Link>
         </div>
       )}
     </header>
