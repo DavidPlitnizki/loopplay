@@ -2,6 +2,7 @@
   "extends": "@loop-play/config/tsconfig/base.json",
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "jsx": "react-jsx",
     "paths": { "@/*": ["./src/*"] }
   },
   "include": ["src"],
