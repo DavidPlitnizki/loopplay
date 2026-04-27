@@ -1,0 +1,23 @@
+.wrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.frame {
+  position: relative;
+  overflow: hidden;
+  width: var(--frame-width);
+  height: var(--frame-height);
+  aspect-ratio: var(--frame-ratio);
+}
+
+.border {
+  position: absolute;
+  inset: 0;
+  border: 2px solid red;
+  pointer-events: none;
+  z-index: 9999;
+}
