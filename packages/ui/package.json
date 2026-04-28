@@ -7,7 +7,8 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./styles/globals.css": "./src/styles/globals.css"
+    "./styles/globals.css": "./src/styles/globals.css",
+    "./styles/game-dark.css": "./src/styles/game-dark.css"
   },
   "peerDependencies": {
     "react": "^19.0.0",

@@ -1,0 +1,46 @@
+/* Dark game theme tokens — import once at app entry (e.g. main.tsx).
+   References design system values from globals.css dark palette. */
+:root {
+  /* --- Colors --- */
+  --game-card-bg:        oklch(0.205 0 0);          /* --card dark */
+  --game-card-border:    oklch(1 0 0 / 10%);        /* --border dark */
+  --game-foreground:     oklch(0.985 0 0);           /* --foreground dark */
+  --game-muted:          oklch(0.708 0 0);           /* --muted-foreground dark */
+  --game-btn-bg:         oklch(0.922 0 0);           /* --primary dark */
+  --game-btn-fg:         oklch(0.205 0 0);           /* --primary-foreground dark */
+  --game-btn-danger-bg:  oklch(0.577 0.245 27.325);  /* --destructive */
+  --game-btn-danger-fg:  oklch(0.985 0 0);
+  --game-overlay-bg:     oklch(0 0 0 / 60%);         /* dim backdrop */
+
+  /* --- Border radius --- */
+  --game-radius-sm:      0.375rem;
+  --game-radius:         0.5rem;
+  --game-radius-lg:      0.75rem;
+  --game-radius-xl:      1rem;
+
+  /* --- Font size scale --- */
+  --game-text-xs:        0.75rem;    /* 12px */
+  --game-text-sm:        0.875rem;   /* 14px */
+  --game-text-base:      1rem;       /* 16px */
+  --game-text-lg:        1.125rem;   /* 18px */
+  --game-text-xl:        1.25rem;    /* 20px */
+  --game-text-2xl:       1.5rem;     /* 24px */
+  --game-text-3xl:       1.875rem;   /* 30px */
+  --game-text-4xl:       2.25rem;    /* 36px */
+
+  /* --- Spacing scale (4px base) --- */
+  --game-space-1:        0.25rem;    /* 4px */
+  --game-space-2:        0.5rem;     /* 8px */
+  --game-space-3:        0.75rem;    /* 12px */
+  --game-space-4:        1rem;       /* 16px */
+  --game-space-5:        1.25rem;    /* 20px */
+  --game-space-6:        1.5rem;     /* 24px */
+  --game-space-8:        2rem;       /* 32px */
+  --game-space-10:       2.5rem;     /* 40px */
+  --game-space-12:       3rem;       /* 48px */
+
+  /* --- Font weight --- */
+  --game-font-normal:    400;
+  --game-font-semibold:  600;
+  --game-font-bold:      700;
+}

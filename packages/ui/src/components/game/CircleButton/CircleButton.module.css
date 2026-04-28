@@ -1,0 +1,66 @@
+.btn {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.6);
+  outline: 2px solid rgba(0, 0, 0, 0.6);
+  outline-offset: 4px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.08s ease;
+  user-select: none;
+}
+
+/* ── Hit (dark green) ── */
+.hit {
+  background: #1e6b2e;
+  box-shadow:
+    0 4px 0 #0d3516,
+    0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.hit:hover:not(:disabled) {
+  background: #225f2a;
+  filter: brightness(1.1);
+}
+
+.hit:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 #0d3516,
+    0 2px 5px rgba(0, 0, 0, 0.35);
+}
+
+/* ── Stand (dark red) ── */
+.stand {
+  background: #7a1515;
+  box-shadow:
+    0 4px 0 #3d0a0a,
+    0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.stand:hover:not(:disabled) {
+  background: #6e1212;
+  filter: brightness(1.1);
+}
+
+.stand:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 #3d0a0a,
+    0 2px 5px rgba(0, 0, 0, 0.35);
+}
+
+/* ── Disabled ── */
+.btn:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.6) brightness(0.45);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  outline-color: #444;
+  border-color: #444;
+}
