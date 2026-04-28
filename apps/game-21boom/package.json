@@ -12,6 +12,7 @@
   "dependencies": {
     "@loop-play/game-sdk": "workspace:*",
     "@loop-play/types": "workspace:*",
+    "@loop-play/ui": "workspace:*",
     "@xstate/react": "^6.1.0",
     "phaser": "^4.0.0",
     "react": "^19.0.0",

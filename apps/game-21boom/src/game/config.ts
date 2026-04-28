@@ -12,7 +12,7 @@ export const SCREEN_ASPECT: Record<ScreenMode, { width: number; height: number }
 export function createPhaserConfig(): Phaser.Types.Core.GameConfig {
   return {
     type: Phaser.AUTO,
-    backgroundColor: "#1a1a2e",
+    backgroundColor: "#0B6623",
     scene: [GameScene],
     scale: {
       mode: Phaser.Scale.RESIZE,
