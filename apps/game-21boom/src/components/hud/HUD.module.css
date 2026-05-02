@@ -7,3 +7,26 @@
   justify-content: space-between;
   padding: var(--game-space-4);
 }
+
+.rounds {
+  position: absolute;
+  left: var(--game-space-4);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Aligned with Phaser card areas: enemy centre 32%, player centre 63% of canvas height.
+   Badges sit just above the top edge of each card group (card half-height ≈ 15% at 600px). */
+.dealer_score {
+  position: absolute;
+  left: 42%;
+  top: 36%;
+  transform: translateX(-50%);
+}
+
+.player_score {
+  position: absolute;
+  left: 42%;
+  top: 56%;
+  transform: translateX(-50%);
+}

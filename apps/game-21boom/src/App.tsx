@@ -1,7 +1,7 @@
 import { GameFrame } from "./game/GameFrame/GameFrame";
 import { PhaserGame } from "./game/PhaserGame";
 import { HUD } from "./components/hud/HUD";
-import ModalsManger from "./components/modals/ModalsManager/Modalsmanager";
+import ModalsManger from "./components/modals/ModalsManager/ModalsManager";
 
 export default function App() {
   return (

@@ -19,6 +19,7 @@ interface GameContext {
   roundsPlayed: number;
   playerWins: number;
   enemyWins: number;
+  roundResults: Winner[];
 }
 
 // Top-level game lifecycle events — start, pause, modals, end.
@@ -38,6 +39,8 @@ type GameEvent =
 type RoundEvent =
   | { type: "HIT" }
   | { type: "STAND" }
+  | { type: "SURRENDER" }
+  | { type: "SHUFFLE" }
   | { type: "NEXT_ROUND" };
 
 type Events = GameEvent | RoundEvent;
@@ -88,6 +91,7 @@ const initialContext: GameContext = {
   roundsPlayed: 0,
   playerWins: 0,
   enemyWins: 0,
+  roundResults: [],
 };
 
 export const gameMachine = setup({
@@ -146,17 +150,35 @@ export const gameMachine = setup({
         roundsPlayed: context.roundsPlayed + 1,
         playerWins: context.playerWins + (winner === "player" ? 1 : 0),
         enemyWins: context.enemyWins + (winner === "enemy" ? 1 : 0),
+        roundResults: [...context.roundResults, winner],
       };
+    }),
+    surrender: assign(({ context }) => ({
+      winner: "enemy" as Winner,
+      roundsPlayed: context.roundsPlayed + 1,
+      enemyWins: context.enemyWins + 1,
+      roundResults: [...context.roundResults, "enemy" as Winner],
+    })),
+    shuffleDeck: assign(({ context }) => {
+      const deck = [...context.deck];
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+      return { deck };
     }),
     resetMatch: assign(() => ({
       roundsPlayed: 0,
       playerWins: 0,
       enemyWins: 0,
+      roundResults: [] as Winner[],
     })),
   },
   guards: {
     playerBust: ({ context }) => handTotal(context.playerHand) > 21,
     enemyShouldHit: ({ context }) => handTotal(context.enemyHand) < 17,
+    matchOver: ({ context }) =>
+      context.playerWins >= 3 || context.enemyWins >= 3 || context.roundsPlayed >= 5,
   },
 }).createMachine({
   id: "game-21",
@@ -201,6 +223,7 @@ export const gameMachine = setup({
           on: {
             HIT: { target: "playerDraw" },
             STAND: { target: "enemyTurn" },
+            SURRENDER: { target: "enemyWin" },
           },
         },
         playerDraw: {
@@ -225,9 +248,17 @@ export const gameMachine = setup({
           entry: "decideWinner",
           always: { target: "roundOver" },
         },
+        enemyWin: {
+          entry: "surrender",
+          always: { target: "roundOver" },
+        },
         roundOver: {
+          always: [
+            { guard: "matchOver", target: "#game-21.gameOver" },
+          ],
           on: {
             NEXT_ROUND: { target: "dealing" },
+            SHUFFLE: { actions: "shuffleDeck" },
           },
         },
       },
