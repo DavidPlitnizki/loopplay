@@ -19,14 +19,14 @@
    Badges sit just above the top edge of each card group (card half-height ≈ 15% at 600px). */
 .dealer_score {
   position: absolute;
-  left: 42%;
-  top: 36%;
+  left: 32%;
+  top: 18%;
   transform: translateX(-50%);
 }
 
 .player_score {
   position: absolute;
-  left: 42%;
-  top: 56%;
+  left: 32%;
+  top: 62%;
   transform: translateX(-50%);
 }

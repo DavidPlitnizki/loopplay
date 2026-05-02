@@ -1,7 +1,7 @@
 import * as Phaser from "phaser";
 import type { Actor } from "xstate";
 import type { GameMachine, Card } from "../machine";
-import { animSignal } from "../bridge";
+import { animSignal, gameReadySignal } from "../bridge";
 
 // ── Card dimensions ────────────────────────────────────────────────────────
 const W = 78;
@@ -29,6 +29,9 @@ export class GameScene extends Phaser.Scene {
   private playerCards: Phaser.GameObjects.Container[] = [];
   private enemyCards: Phaser.GameObjects.Container[] = [];
 
+  // Dealer's hole card — second initial enemy card; stays face-down until player stands.
+  private holeCard: Phaser.GameObjects.Container | null = null;
+
   // Track identity of first card per hand to detect a new round
   private prevFirstPlayerKey: string | null = null;
   private prevFirstEnemyKey: string | null = null;
@@ -41,6 +44,8 @@ export class GameScene extends Phaser.Scene {
   preload() {}
 
   create() {
+    this.cameras.main.fadeIn(500, 0, 0, 0);
+    gameReadySignal.set();
     this.actor = this.registry.get("gameActor") as Actor<GameMachine>;
 
     this.deckPile = this.buildDeckPile();
@@ -101,18 +106,19 @@ export class GameScene extends Phaser.Scene {
     return holder === "player" ? this.playerCY : this.enemyCY;
   }
 
-  // x of the i-th card in a hand of `total` cards, centred on handCX
-  private cardTargetX(
-    holder: "player" | "enemy",
-    index: number,
-    total: number,
-  ) {
-    return this.handCX(holder) + (index - (total - 1) / 2) * STEP;
+  // x of the i-th card in a hand. Anchored so the initial 2-card deal is
+  // centred on handCX; subsequent cards grow to the right and existing
+  // cards stay put.
+  private cardTargetX(holder: "player" | "enemy", index: number) {
+    return this.handCX(holder) + (index - 0.5) * STEP;
   }
 
   // ── State subscription ───────────────────────────────────────────────────
   private onSnap(snap: ReturnType<typeof this.actor.getSnapshot>) {
-    if (this.isIdle(snap)) { this.clearCards(); return; }
+    if (this.isIdle(snap)) {
+      this.clearCards();
+      return;
+    }
     if (!this.isPlaying(snap)) return;
 
     const { playerHand, enemyHand } = snap.context;
@@ -120,6 +126,13 @@ export class GameScene extends Phaser.Scene {
     this.handleNewRound(playerHand, enemyHand);
     this.syncHand(playerHand, "player", 0);
     this.syncHand(enemyHand, "enemy", 250);
+
+    // Once the player is no longer the one acting, reveal the dealer's hole card.
+    if (this.holeCard && !this.isPlayerPhase(snap)) {
+      animSignal.begin();
+      this.flipCard(this.holeCard);
+      this.holeCard = null;
+    }
   }
 
   private isIdle(snap: ReturnType<typeof this.actor.getSnapshot>) {
@@ -129,6 +142,13 @@ export class GameScene extends Phaser.Scene {
   private isPlaying(snap: ReturnType<typeof this.actor.getSnapshot>) {
     const val = snap.value;
     return typeof val === "object" && "playing" in (val as object);
+  }
+
+  private isPlayerPhase(snap: ReturnType<typeof this.actor.getSnapshot>) {
+    const val = snap.value;
+    if (typeof val !== "object") return false;
+    const phase = (val as { playing?: string }).playing;
+    return phase === "dealing" || phase === "playerTurn" || phase === "playerDraw";
   }
 
   private handleNewRound(playerHand: Card[], enemyHand: Card[]) {
@@ -152,30 +172,10 @@ export class GameScene extends Phaser.Scene {
     const newTotal = hand.length;
     const isInitial = prevLen === 0;
 
-    this.repositionSettledCards(holder, prevLen, newTotal);
     this.dealNewCards(hand, holder, prevLen, newTotal, isInitial, initialBaseDelay);
 
     if (holder === "player") this.prevPlayerLen = newTotal;
     else this.prevEnemyLen = newTotal;
-  }
-
-  private repositionSettledCards(
-    holder: "player" | "enemy",
-    count: number,
-    newTotal: number,
-  ) {
-    const cards = holder === "player" ? this.playerCards : this.enemyCards;
-    const cy = holder === "player" ? this.playerCY : this.enemyCY;
-
-    for (let i = 0; i < count; i++) {
-      this.tweens.add({
-        targets: cards[i],
-        x: this.cardTargetX(holder, i, newTotal),
-        y: cy,
-        duration: 200,
-        ease: "Power1",
-      });
-    }
   }
 
   private dealNewCards(
@@ -188,8 +188,11 @@ export class GameScene extends Phaser.Scene {
   ) {
     for (let i = prevLen; i < newTotal; i++) {
       const batch = i - prevLen;
-      const delay = isInitial ? baseDelay + batch * 500 : 0;
-      this.dealCardAnim(hand[i], holder, i, newTotal, delay);
+      // Stagger every batch so multiple enemy draws (after STAND) appear one by one.
+      const delay = isInitial ? baseDelay + batch * 500 : batch * 600;
+      // Enemy's second initial card stays face-down until the player stands.
+      const faceDown = isInitial && holder === "enemy" && i === 1;
+      this.dealCardAnim(hand[i], holder, i, delay, faceDown);
     }
   }
 
@@ -198,8 +201,8 @@ export class GameScene extends Phaser.Scene {
     card: Card,
     holder: "player" | "enemy",
     index: number,
-    total: number,
     delay: number,
+    faceDown: boolean = false,
   ) {
     const container = this.buildCard(card);
     container.setPosition(this.deckX, this.deckY);
@@ -207,7 +210,9 @@ export class GameScene extends Phaser.Scene {
     const cards = holder === "player" ? this.playerCards : this.enemyCards;
     cards.push(container);
 
-    const tx = this.cardTargetX(holder, index, total);
+    if (faceDown) this.holeCard = container;
+
+    const tx = this.cardTargetX(holder, index);
     const ty = this.handCY(holder);
 
     animSignal.begin();
@@ -218,7 +223,13 @@ export class GameScene extends Phaser.Scene {
       duration: 380,
       delay,
       ease: "Power2.easeOut",
-      onComplete: () => this.flipCard(container),
+      onComplete: () => {
+        if (faceDown) {
+          animSignal.end();
+        } else {
+          this.flipCard(container);
+        }
+      },
     });
   }
 
@@ -341,6 +352,7 @@ export class GameScene extends Phaser.Scene {
     this.enemyCards.forEach((c) => c.destroy());
     this.playerCards = [];
     this.enemyCards = [];
+    this.holeCard = null;
     this.prevPlayerLen = 0;
     this.prevEnemyLen = 0;
   }
@@ -353,9 +365,8 @@ export class GameScene extends Phaser.Scene {
       cards: Phaser.GameObjects.Container[],
       holder: "player" | "enemy",
     ) => {
-      const total = cards.length;
       cards.forEach((c, i) => {
-        c.setPosition(this.cardTargetX(holder, i, total), this.handCY(holder));
+        c.setPosition(this.cardTargetX(holder, i), this.handCY(holder));
       });
     };
 

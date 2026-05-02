@@ -10,23 +10,18 @@ export function Controls() {
   const isPlayerTurn = useSelector(gameActor, (s) =>
     s.matches({ playing: "playerTurn" }),
   );
-  const isRoundOver = useSelector(gameActor, (s) =>
-    s.matches({ playing: "roundOver" }),
-  );
-
   const [remaining, setRemaining] = useState(TURN_SECONDS);
+  const actionStand = useCallback(() => gameActor.send({ type: "STAND" }), []);
 
-  if (!isPlayerTurn && !isRoundOver) return null;
+  if (!isPlayerTurn) return null;
 
   const pct = (remaining / TURN_SECONDS) * 100;
   const tone = pct > 50 ? "green" : pct > 25 ? "orange" : "red";
 
   const actionHit = () => gameActor.send({ type: "HIT" });
-  const actionStand = useCallback(() => gameActor.send({ type: "STAND" }), []);
   const actionSurrender = () => gameActor.send({ type: "SURRENDER" });
-  const actionShuffle = () => gameActor.send({ type: "SHUFFLE" });
 
-  const actionExit = () => gameActor.send({ type: "END_GAME" });
+  const actionExit = () => gameActor.send({ type: "MAIN_MENU" });
 
   return (
     <div className={styles.controls}>
@@ -53,11 +48,7 @@ export function Controls() {
             </CircleButton>
           </>
         )}
-        {isRoundOver && (
-          <CircleButton variant="shuffle" actionHandle={actionShuffle} disabled={isAnimating}>
-            Shuffle
-          </CircleButton>
-        )}
+
       </div>
 
       <div className={styles.side_right}>

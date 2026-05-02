@@ -1,4 +1,5 @@
 import * as Phaser from "phaser";
+import { LoaderScene } from "./scenes/LoaderScene";
 import { GameScene } from "./scenes/GameScene";
 
 export type ScreenMode = "portrait" | "landscape";
@@ -13,7 +14,7 @@ export function createPhaserConfig(): Phaser.Types.Core.GameConfig {
   return {
     type: Phaser.AUTO,
     backgroundColor: "#0B6623",
-    scene: [GameScene],
+    scene: [LoaderScene, GameScene], // LoaderScene starts first, then hands off to GameScene
     scale: {
       mode: Phaser.Scale.RESIZE,
       width: "100%",

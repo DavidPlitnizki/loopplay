@@ -1,0 +1,13 @@
+.result {
+  font-size: var(--game-text-3xl);
+  font-weight: var(--game-font-bold);
+  color: var(--game-foreground);
+  margin-bottom: var(--game-space-1);
+  letter-spacing: 0.03em;
+}
+
+.score {
+  color: var(--game-muted);
+  font-size: var(--game-text-sm);
+  margin-bottom: var(--game-space-4);
+}

@@ -1,33 +1,39 @@
 import { useSelector } from "@xstate/react";
-import { GameButton, GameCard } from "@loop-play/ui";
+import { GameButton } from "@loop-play/ui";
 import { gameActor } from "../../../game/bridge";
-import { handTotal } from "../../../game/machine";
+import { ModalFrame } from "../ModalFrame/ModalFrame";
 import styles from "./GameOverModal.module.css";
 
+const TOTAL_ROUNDS = 5;
+
 export function GameOverModal() {
-  const { winner, playerHand, enemyHand } = useSelector(
-    gameActor,
-    (s) => s.context,
-  );
+  const { playerWins, enemyWins } = useSelector(gameActor, (s) => s.context);
 
   const resultText =
-    winner === "player"
-      ? "You Win!"
-      : winner === "enemy"
-        ? "Enemy Wins"
-        : "Tie";
+    playerWins > enemyWins ? "You Win!"
+    : enemyWins > playerWins ? "Enemy Wins"
+    : "Tie";
 
   return (
-    <div className={styles.overlay}>
-      <GameCard>
-        <h2>{resultText}</h2>
-        <p className={styles.score}>
-          You: {handTotal(playerHand)} · Enemy: {handTotal(enemyHand)}
-        </p>
-        <GameButton onClick={() => gameActor.send({ type: "START" })}>
-          Play Again
-        </GameButton>
-      </GameCard>
-    </div>
+    <ModalFrame
+      title={resultText}
+      actions={<GameButton onClick={() => gameActor.send({ type: "START" })}>Play Again</GameButton>}
+    >
+      <p className={styles.score}>You: {playerWins} · Enemy: {enemyWins}</p>
+      <div className={styles.stars}>
+        {Array.from({ length: TOTAL_ROUNDS }, (_, i) => {
+          const won = i < playerWins;
+          return (
+            <span
+              key={i}
+              className={`${styles.star} ${won ? styles.starWon : styles.starLost}`}
+              style={won ? { animationDelay: `${i * 180}ms` } : undefined}
+            >
+              ★
+            </span>
+          );
+        })}
+      </div>
+    </ModalFrame>
   );
 }
