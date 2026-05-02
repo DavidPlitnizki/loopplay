@@ -1,0 +1,15 @@
+.title {
+  font-size: var(--game-text-4xl);
+  font-weight: var(--game-font-bold);
+  color: var(--game-foreground);
+  margin-bottom: var(--game-space-2);
+  letter-spacing: 0.04em;
+}
+
+.description {
+  color: var(--game-muted);
+  font-size: var(--game-text-sm);
+  max-width: 220px;
+  line-height: 1.5;
+  margin-bottom: var(--game-space-4);
+}

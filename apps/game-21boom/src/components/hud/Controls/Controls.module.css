@@ -1,0 +1,188 @@
+.controls {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, #226a23 0%, #153c1c 50%, #084520 100%);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 12px;
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(212, 175, 55, 0.25),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+  padding: var(--game-space-2) var(--game-space-3, 1rem);
+  z-index: 1;
+}
+
+/* side_left (left) and side_right (right) each take equal flex so buttons stay centred */
+.side_left {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: var(--game-space-4, 1rem);
+  z-index: 2;
+}
+
+.info_panel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--game-space-4, 1rem);
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 10px;
+  padding: 6px 12px;
+  box-shadow:
+    inset 0 1px 0 rgba(212, 175, 55, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+}
+
+.balance {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.balance_label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(212, 175, 55, 0.85);
+}
+
+.balance_amount {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+  letter-spacing: 0.02em;
+}
+
+.controls::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 20%, rgba(212, 175, 55, 0.22) 50%, transparent 80%);
+  transform: translateX(-100%);
+  animation: woodSheen 9s ease-in-out infinite;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.buttons_wrapper {
+  display: flex;
+  gap: var(--game-space-8);
+  z-index: 2;
+  /* no flex: 1 — stays at natural width so it centres between balance and side_right */
+}
+
+.side_right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--game-space-3, 0.75rem);
+  padding-left: var(--game-space-4, 1rem);
+  z-index: 2;
+}
+
+.side_right .exit_btn {
+  margin-left: auto;
+}
+
+.exit_btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: radial-gradient(circle at 40% 30%, #c03030 0%, #7a1010 60%, #3d0808 100%);
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  outline: 2px solid rgba(0, 0, 0, 0.45);
+  outline-offset: 3px;
+  border-radius: 10px;
+  padding: 6px 14px;
+  cursor: pointer;
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.2),
+    inset 0 -3px 5px rgba(0, 0, 0, 0.4),
+    0 4px 0 #2a0606,
+    0 6px 12px rgba(0, 0, 0, 0.5);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.exit_btn:hover {
+  filter: brightness(1.1);
+}
+
+.exit_btn:active {
+  transform: translateY(3px);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.15),
+    inset 0 -1px 3px rgba(0, 0, 0, 0.35),
+    0 1px 0 #2a0606,
+    0 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+.exit_icon {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1;
+}
+
+.exit_label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.progress_track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 3;
+  overflow: hidden;
+}
+
+.progress_fill {
+  height: 100%;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  will-change: width, opacity;
+}
+
+.progress_flicker {
+  animation: progressFlicker 0.45s steps(2, end) infinite;
+}
+
+@keyframes progressFlicker {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+
+.progress_green {
+  background: linear-gradient(90deg, #16a34a 0%, #4ade80 100%);
+  box-shadow: 0 0 6px rgba(74, 222, 128, 0.6);
+}
+
+.progress_orange {
+  background: linear-gradient(90deg, #d97706 0%, #fbbf24 100%);
+  box-shadow: 0 0 6px rgba(251, 191, 36, 0.6);
+}
+
+.progress_red {
+  background: linear-gradient(90deg, #dc2626 0%, #f87171 100%);
+  box-shadow: 0 0 8px rgba(248, 113, 113, 0.7);
+}
+
+@keyframes woodSheen {
+  0%   { transform: translateX(-100%); }
+  60%  { transform: translateX(200%); }
+  100% { transform: translateX(200%); }
+}

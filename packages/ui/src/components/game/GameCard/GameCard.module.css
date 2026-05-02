@@ -1,0 +1,13 @@
+.card {
+  background: var(--game-card-bg);
+  border: 1px solid var(--game-card-border);
+  border-radius: var(--game-radius-xl);
+  padding: var(--game-space-8);
+  text-align: center;
+  color: var(--game-foreground);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--game-space-2);
+}

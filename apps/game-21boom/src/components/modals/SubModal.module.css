@@ -1,0 +1,36 @@
+.title {
+  font-size: var(--game-text-2xl);
+  font-weight: var(--game-font-bold);
+  color: var(--game-foreground);
+  letter-spacing: 0.04em;
+  margin-bottom: var(--game-space-6);
+}
+
+.body {
+  color: var(--game-muted);
+  font-size: var(--game-text-sm);
+  margin-bottom: var(--game-space-6);
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--game-space-2);
+  padding: var(--game-space-2) var(--game-space-5);
+  border-radius: var(--game-radius);
+  border: 1px solid oklch(1 0 0 / 15%);
+  background: transparent;
+  color: var(--game-muted);
+  font-size: var(--game-text-sm);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.backBtn:hover {
+  color: var(--game-foreground);
+  border-color: oklch(0.72 0.12 85 / 40%);
+}

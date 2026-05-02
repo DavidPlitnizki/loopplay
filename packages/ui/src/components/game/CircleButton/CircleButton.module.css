@@ -1,0 +1,126 @@
+.btn {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.6);
+  outline: 2px solid rgba(0, 0, 0, 0.6);
+  outline-offset: 4px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.08s ease;
+  user-select: none;
+}
+
+/* ── Hit (dark green) ── */
+.hit {
+  background: radial-gradient(circle at 35% 30%, #4ea65a 0%, #1e6b2e 55%, #0f4019 100%);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.35),
+    inset 0 -4px 6px rgba(0, 0, 0, 0.45),
+    0 6px 0 #0d3516,
+    0 10px 18px rgba(0, 0, 0, 0.55);
+}
+
+.hit:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.hit:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.25),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+    0 2px 0 #0d3516,
+    0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Stand (dark red) ── */
+.stand {
+  background: radial-gradient(circle at 35% 30%, #c83a3a 0%, #7a1515 55%, #3d0a0a 100%);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.35),
+    inset 0 -4px 6px rgba(0, 0, 0, 0.45),
+    0 6px 0 #3d0a0a,
+    0 10px 18px rgba(0, 0, 0, 0.55);
+}
+
+.stand:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.stand:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.25),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+    0 2px 0 #3d0a0a,
+    0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Shuffle (dark blue) ── */
+.shuffle {
+  background: radial-gradient(circle at 35% 30%, #3a7ac8 0%, #154d8a 55%, #0a2d57 100%);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.35),
+    inset 0 -4px 6px rgba(0, 0, 0, 0.45),
+    0 6px 0 #0a2d57,
+    0 10px 18px rgba(0, 0, 0, 0.55);
+}
+
+.shuffle:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.shuffle:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.25),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+    0 2px 0 #0a2d57,
+    0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Surrender (dark orange) ── */
+.surrender {
+  background: radial-gradient(circle at 35% 30%, #e8832a 0%, #b35010 55%, #6b2c05 100%);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.35),
+    inset 0 -4px 6px rgba(0, 0, 0, 0.45),
+    0 6px 0 #6b2c05,
+    0 10px 18px rgba(0, 0, 0, 0.55);
+}
+
+.surrender:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.surrender:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.25),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+    0 2px 0 #6b2c05,
+    0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Disabled ── */
+.btn:disabled {
+  cursor: not-allowed;
+  background: radial-gradient(circle at 35% 30%, #4a4a4a 0%, #2a2a2a 55%, #141414 100%);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.08),
+    inset 0 -3px 5px rgba(0, 0, 0, 0.5),
+    0 3px 0 #0a0a0a,
+    0 5px 10px rgba(0, 0, 0, 0.35);
+  outline-color: #333;
+  border-color: #333;
+  color: rgba(255, 255, 255, 0.25);
+  text-shadow: none;
+  opacity: 0.6;
+  transform: none;
+}

@@ -1,0 +1,9 @@
+.topbar {
+  pointer-events: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--game-foreground);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: var(--game-text-sm);
+}

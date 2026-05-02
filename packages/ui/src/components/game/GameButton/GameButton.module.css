@@ -1,0 +1,32 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--game-radius);
+  background: var(--game-btn-bg);
+  color: var(--game-btn-fg);
+  font-size: var(--game-text-base);
+  font-weight: var(--game-font-semibold);
+  padding: var(--game-space-3) var(--game-space-6);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btn:hover  { opacity: 0.88; }
+.btn:active { opacity: 0.75; }
+
+.danger {
+  background: var(--game-btn-danger-bg);
+  color: var(--game-btn-danger-fg);
+}
+
+.sm {
+  font-size: var(--game-text-sm);
+  padding: var(--game-space-1) var(--game-space-3);
+}
+
+.lg {
+  font-size: var(--game-text-xl);
+  padding: var(--game-space-3) var(--game-space-8);
+}
