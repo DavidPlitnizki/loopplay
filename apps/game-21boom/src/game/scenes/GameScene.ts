@@ -1,7 +1,7 @@
 import * as Phaser from "phaser";
 import type { Actor } from "xstate";
 import type { GameMachine, Card } from "../machine";
-import { animSignal, gameReadySignal } from "../bridge";
+import { animSignal, gameReadySignal, notifyCardRendered } from "../bridge";
 
 // ── Card dimensions ────────────────────────────────────────────────────────
 const W = 78;
@@ -127,8 +127,7 @@ export class GameScene extends Phaser.Scene {
     this.syncHand(playerHand, "player", 0);
     this.syncHand(enemyHand, "enemy", 250);
 
-    // Once the player is no longer the one acting, reveal the dealer's hole card.
-    if (this.holeCard && !this.isPlayerPhase(snap)) {
+    if (this.holeCard && snap.context.holeRevealed) {
       animSignal.begin();
       this.flipCard(this.holeCard);
       this.holeCard = null;
@@ -142,13 +141,6 @@ export class GameScene extends Phaser.Scene {
   private isPlaying(snap: ReturnType<typeof this.actor.getSnapshot>) {
     const val = snap.value;
     return typeof val === "object" && "playing" in (val as object);
-  }
-
-  private isPlayerPhase(snap: ReturnType<typeof this.actor.getSnapshot>) {
-    const val = snap.value;
-    if (typeof val !== "object") return false;
-    const phase = (val as { playing?: string }).playing;
-    return phase === "dealing" || phase === "playerTurn" || phase === "playerDraw";
   }
 
   private handleNewRound(playerHand: Card[], enemyHand: Card[]) {
@@ -225,16 +217,17 @@ export class GameScene extends Phaser.Scene {
       ease: "Power2.easeOut",
       onComplete: () => {
         if (faceDown) {
+          notifyCardRendered(holder, card);
           animSignal.end();
         } else {
-          this.flipCard(container);
+          this.flipCard(container, () => notifyCardRendered(holder, card));
         }
       },
     });
   }
 
   // ── Flip animation (scale-X collapse → reveal face → expand) ────────────
-  private flipCard(container: Phaser.GameObjects.Container) {
+  private flipCard(container: Phaser.GameObjects.Container, onSettled?: () => void) {
     this.tweens.add({
       targets: container,
       scaleX: 0,
@@ -252,7 +245,10 @@ export class GameScene extends Phaser.Scene {
           scaleX: 1,
           duration: 130,
           ease: "Sine.easeOut",
-          onComplete: () => animSignal.end(),
+          onComplete: () => {
+            onSettled?.();
+            animSignal.end();
+          },
         });
       },
     });

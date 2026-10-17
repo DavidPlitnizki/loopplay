@@ -20,6 +20,7 @@ export function Controls() {
 
   const actionHit = () => gameActor.send({ type: "HIT" });
   const actionSurrender = () => gameActor.send({ type: "SURRENDER" });
+  const actionEndTurn = () => gameActor.send({ type: "END_TURN" });
 
   const actionExit = () => gameActor.send({ type: "MAIN_MENU" });
 
@@ -37,18 +38,36 @@ export function Controls() {
       <div className={styles.buttons_wrapper}>
         {isPlayerTurn && (
           <>
-            <CircleButton variant="hit" actionHandle={actionHit} disabled={isAnimating}>
+            <CircleButton
+              variant="hit"
+              actionHandle={actionHit}
+              disabled={isAnimating}
+            >
               Hit
             </CircleButton>
-            <CircleButton variant="stand" actionHandle={actionStand} disabled={isAnimating}>
+            <CircleButton
+              variant="stand"
+              actionHandle={actionStand}
+              disabled={isAnimating}
+            >
               Stand
             </CircleButton>
-            <CircleButton variant="surrender" actionHandle={actionSurrender} disabled={isAnimating}>
+            <CircleButton
+              variant="end_turn"
+              actionHandle={actionEndTurn}
+              disabled={isAnimating}
+            >
+              End Turn
+            </CircleButton>
+            <CircleButton
+              variant="surrender"
+              actionHandle={actionSurrender}
+              disabled={isAnimating}
+            >
               Surrender
             </CircleButton>
           </>
         )}
-
       </div>
 
       <div className={styles.side_right}>

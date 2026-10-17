@@ -1,11 +1,20 @@
 import { createActor } from "xstate";
 import { gameMachine } from "./machine";
+import type { Card } from "./machine/cards";
+import type { Holder } from "./machine/types";
 
 // Single actor instance shared between Phaser scenes and React components.
 // Phaser: import { gameActor } from "../bridge"; gameActor.send({ type: "WRONG_ANSWER" })
 // React:  import { gameActor } from "../game/bridge"; useSelector(gameActor, s => s.context)
 export const gameActor = createActor(gameMachine);
 gameActor.start();
+
+// Call from Phaser at the end of a card's deal/flip animation. Pushes the card
+// into the machine's `displayed*Hand`, which is what HandScore reads — keeps
+// score in sync with what the player actually sees on screen.
+export function notifyCardRendered(holder: Holder, card: Card) {
+  gameActor.send({ type: "CARD_RENDERED", holder, card });
+}
 
 // Flipped to true once GameScene.create() runs — gates React UI from rendering
 // before the loader finishes and the game scene is actually on screen.

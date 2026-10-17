@@ -7,12 +7,15 @@ export interface GameContext {
   deck: Card[];
   playerHand: Card[];
   enemyHand: Card[];
+  displayedPlayerHand: Card[];
+  displayedEnemyHand: Card[];
   nextHolder: Holder;
   winner: Winner;
   roundsPlayed: number;
   playerWins: number;
   enemyWins: number;
   roundResults: Winner[];
+  holeRevealed: boolean;
 }
 
 // Top-level game lifecycle events — start, pause, modals, end.
@@ -43,7 +46,9 @@ export type RoundEvent =
   | { type: "STAND" }
   | { type: "SURRENDER" }
   | { type: "SHUFFLE" }
-  | { type: "NEXT_ROUND" };
+  | { type: "NEXT_ROUND" }
+  | { type: "END_TURN" }
+  | { type: "CARD_RENDERED"; holder: Holder; card: Card };
 
 export type Events = GameEvent | RoundEvent;
 
@@ -51,10 +56,13 @@ export const initialContext: GameContext = {
   deck: [],
   playerHand: [],
   enemyHand: [],
+  displayedPlayerHand: [],
+  displayedEnemyHand: [],
   nextHolder: "player",
   winner: null,
   roundsPlayed: 0,
   playerWins: 0,
   enemyWins: 0,
   roundResults: [],
+  holeRevealed: false,
 };

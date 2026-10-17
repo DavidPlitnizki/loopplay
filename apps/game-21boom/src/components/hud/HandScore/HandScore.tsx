@@ -7,18 +7,11 @@ interface Props {
   holder: "player" | "enemy";
 }
 
-function isPlayerPhase(value: unknown): boolean {
-  if (typeof value !== "object" || value === null) return false;
-  const phase = (value as { playing?: string }).playing;
-  return phase === "dealing" || phase === "playerTurn" || phase === "playerDraw";
-}
-
 export function HandScore({ holder }: Props) {
   const hand = useSelector(gameActor, (s) => {
     const fullHand =
-      holder === "player" ? s.context.playerHand : s.context.enemyHand;
-    // While the dealer's hole card is hidden, only the first card counts.
-    if (holder === "enemy" && isPlayerPhase(s.value)) {
+      holder === "player" ? s.context.displayedPlayerHand : s.context.displayedEnemyHand;
+    if (holder === "enemy" && !s.context.holeRevealed) {
       return fullHand.slice(0, 1);
     }
     return fullHand;
