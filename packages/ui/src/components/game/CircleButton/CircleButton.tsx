@@ -1,6 +1,11 @@
 import styles from "./CircleButton.module.css";
 
-type CircleButtonVariant = "hit" | "stand" | "surrender" | "shuffle";
+type CircleButtonVariant =
+  | "hit"
+  | "stand"
+  | "surrender"
+  | "shuffle"
+  | "end_turn";
 
 interface CircleButtonProps {
   variant: CircleButtonVariant;

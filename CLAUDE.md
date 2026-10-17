@@ -9,7 +9,7 @@ Loop Play/
 ├── apps/
 │   ├── lobby/          # Next.js 16 App Router (src/ layout) — game browser, auth, launcher
 │   ├── api/            # Hono HTTP API — auth, scores, catalog, user profiles
-│   └── game-21boom/    # Vite + PixiJS standalone game (runs in iframe)
+│   └── game-21boom/    # Vite + Phaser + React + XState standalone game (runs in iframe)
 └── packages/
     ├── config/         # Shared ESLint, TypeScript, Tailwind base configs
     ├── types/          # Shared TS types — auth, scores, events, catalog DTOs
@@ -32,7 +32,7 @@ Loop Play/
 | Monorepo | Turborepo 2 + pnpm 9 workspaces |
 | Lobby | Next.js 16 (App Router), React 19, TypeScript 5 |
 | API | Hono, TypeScript |
-| Games | Vite, PixiJS, TypeScript |
+| Games | Vite, Phaser 4, React, XState, TypeScript |
 | UI | shadcn/ui, Tailwind CSS v4 |
 | Tooling | ESLint (flat config), TypeScript strict |
 

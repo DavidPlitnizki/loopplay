@@ -14,10 +14,10 @@
     "./tailwind/base.css": "./tailwind/base.css"
   },
   "devDependencies": {
-    "@eslint/js": "^9.0.0",
-    "eslint": "^9.0.0",
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.2",
     "typescript": "^6.0.3",
-    "eslint-config-next": "^15.0.0",
-    "typescript-eslint": "^8.0.0"
+    "typescript-eslint": "^8.71.2"
   }
 }

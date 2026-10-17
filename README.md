@@ -8,7 +8,7 @@ Monorepo for the Loop Play gaming platform — a lobby, its games, the backend, 
 loop-play/
 ├── apps/
 │   ├── lobby/         # Next.js platform (the lobby UI)
-│   ├── game-21boom/   # Standalone game (Vite + PixiJS)
+│   ├── game-21boom/   # Standalone game (Vite + Phaser + React + XState)
 │   └── api/           # Backend (Hono)
 └── packages/
     ├── game-sdk/      # Contract with the lobby — postMessage helpers

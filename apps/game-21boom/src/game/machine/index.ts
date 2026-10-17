@@ -21,6 +21,8 @@ export const gameMachine = setup({
     surrender: assign(A.surrender),
     shuffleDeck: assign(A.shuffleDeck),
     resetMatch: assign(A.resetMatch),
+    revealHole: assign(A.revealHole),
+    pushDisplayed: assign(A.pushDisplayed),
   },
   guards: {
     playerBust: G.playerBust,
@@ -34,30 +36,31 @@ export const gameMachine = setup({
   context: initialContext,
   on: {
     MAIN_MENU: { target: ".idle", actions: "resetMatch" },
+    CARD_RENDERED: { actions: "pushDisplayed" },
   },
   states: {
     // ── Top-level lifecycle: menus, modals, paused, gameOver ──
     idle: {
       entry: "resetMatch",
       on: {
-        START:         { target: "playing" },
-        OPEN_MENU:     { target: "menu" },
-        OPEN_ADS:      { target: "ads" },
-        OPEN_MARKET:   { target: "market" },
-        OPEN_RULES:    { target: "rules" },
-        OPEN_MAP:      { target: "map" },
+        START: { target: "playing" },
+        OPEN_MENU: { target: "menu" },
+        OPEN_ADS: { target: "ads" },
+        OPEN_MARKET: { target: "market" },
+        OPEN_RULES: { target: "rules" },
+        OPEN_MAP: { target: "map" },
         OPEN_SETTINGS: { target: "settings" },
-        OPEN_PROFILE:  { target: "profile" },
+        OPEN_PROFILE: { target: "profile" },
       },
     },
-    menu:     { on: { CLOSE_MENU:     { target: "idle" } } },
-    ads:      { on: { CLOSE_ADS:      { target: "idle" } } },
-    market:   { on: { CLOSE_MARKET:   { target: "idle" } } },
-    rules:    { on: { CLOSE_RULES:    { target: "idle" } } },
-    map:      { on: { CLOSE_MAP:      { target: "idle" } } },
+    menu: { on: { CLOSE_MENU: { target: "idle" } } },
+    ads: { on: { CLOSE_ADS: { target: "idle" } } },
+    market: { on: { CLOSE_MARKET: { target: "idle" } } },
+    rules: { on: { CLOSE_RULES: { target: "idle" } } },
+    map: { on: { CLOSE_MAP: { target: "idle" } } },
     settings: { on: { CLOSE_SETTINGS: { target: "idle" } } },
-    profile:  { on: { CLOSE_PROFILE:  { target: "idle" } } },
-    paused:   { on: { RESUME:         { target: "playing" } } },
+    profile: { on: { CLOSE_PROFILE: { target: "idle" } } },
+    paused: { on: { RESUME: { target: "playing" } } },
 
     // ── Round flow lives inside `playing` ──
     playing: {
@@ -77,6 +80,7 @@ export const gameMachine = setup({
             HIT: { target: "playerDraw" },
             STAND: { target: "enemyTurn" },
             SURRENDER: { target: "enemyWin" },
+            END_TURN: { target: "enemyTurn" },
           },
         },
         playerDraw: {
@@ -94,11 +98,11 @@ export const gameMachine = setup({
           ],
         },
         enemyDraw: {
-          entry: ["setEnemyAsNext", "drawToNext"],
-          always: { target: "enemyTurn" },
+          entry: ["revealHole", "setEnemyAsNext", "drawToNext"],
+          always: { target: "playerTurn" },
         },
         resolving: {
-          entry: "decideWinner",
+          entry: ["revealHole", "decideWinner"],
           always: { target: "roundResult" },
         },
         enemyWin: {

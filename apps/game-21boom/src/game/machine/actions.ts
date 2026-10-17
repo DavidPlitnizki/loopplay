@@ -1,6 +1,6 @@
 import { buildDeck, shuffle, type Card } from "./cards";
 import { decideRoundWinner } from "./guards";
-import type { GameContext, Holder, Winner } from "./types";
+import type { Events, GameContext, Holder, Winner } from "./types";
 
 type Reducer = (args: { context: GameContext }) => Partial<GameContext>;
 
@@ -19,7 +19,26 @@ export const dealAlternating: Reducer = () => {
     enemyHand,
     nextHolder: "player",
     winner: null,
+    holeRevealed: false,
+    displayedPlayerHand: [],
+    displayedEnemyHand: [],
   };
+};
+
+export const revealHole: Reducer = () => ({ holeRevealed: true });
+
+export const pushDisplayed = ({
+  context,
+  event,
+}: {
+  context: GameContext;
+  event: Events;
+}): Partial<GameContext> => {
+  if (event.type !== "CARD_RENDERED") return {};
+  if (event.holder === "player") {
+    return { displayedPlayerHand: [...context.displayedPlayerHand, event.card] };
+  }
+  return { displayedEnemyHand: [...context.displayedEnemyHand, event.card] };
 };
 
 export const drawToNext: Reducer = ({ context }) => {

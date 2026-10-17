@@ -5,9 +5,9 @@
 | Layer | Technology |
 |---|---|
 | Renderer | Phaser 4 (canvas) |
-| UI / HUD | React 19 + TSX |
-| State machine | XState 5 |
-| Build | Vite 6 |
+| UI / HUD / modals | React 19 + TSX |
+| State machine | XState 5 (`@xstate/react` for hooks) |
+| Build | Vite |
 | Styling | CSS Modules |
 
 ---
@@ -16,156 +16,171 @@
 
 ```
 src/
-├── main.tsx              # React root — mounts <App />
-├── App.tsx               # Composes GameFrame + PhaserGame + HUD
-├── vite-env.d.ts         # Vite/CSS module type declarations
+├── main.tsx                  # React root — mounts <App />
+├── App.tsx                   # GameFrame > PhaserGame + HUD + ModalsManager
 │
 ├── game/
-│   ├── GameFrame/
-│   │   ├── GameFrame.tsx          # Aspect-ratio frame wrapper
-│   │   └── GameFrame.module.css   # Frame layout styles
-│   ├── PhaserGame.tsx    # Phaser lifecycle + ResizeObserver
-│   ├── config.ts         # Phaser config + screen aspect ratios
-│   ├── bridge.ts         # Shared XState actor (Phaser ↔ React)
-│   ├── machine.ts        # XState game state machine
+│   ├── GameFrame/            # Aspect-ratio frame wrapper (+ red border overlay)
+│   ├── PhaserGame.tsx        # Phaser lifecycle + ResizeObserver
+│   ├── config.ts             # Phaser config (LoaderScene, GameScene) + aspect ratios
+│   ├── assets.ts             # Asset manifest for the loader
+│   ├── bridge.ts             # gameActor singleton + gameReadySignal + animSignal
+│   ├── machine/
+│   │   ├── index.ts          # XState machine definition (states / transitions)
+│   │   ├── types.ts          # GameContext, GameEvent, RoundEvent, initialContext
+│   │   ├── actions.ts        # Pure context reducers (wrapped in assign)
+│   │   ├── guards.ts         # playerBust, naturalBlackjack, enemyShouldHit, matchOver
+│   │   └── cards.ts          # Card, buildDeck, shuffle, handTotal
 │   └── scenes/
-│       └── GameScene.ts  # Phaser scene (canvas logic)
+│       ├── LoaderScene.ts    # Preload assets, then start GameScene
+│       └── GameScene.ts      # Table, deck pile, card deal/flip animations
 │
-└── hud/
-    └── HUD.tsx           # React overlay — buttons, score, modals
+└── components/
+    ├── ErrorBoundary.tsx
+    ├── hud/                  # TopBar, RoundIndicator, HandScore, Controls (+ Timer)
+    └── modals/               # ModalsManager + one folder per modal
 ```
 
 ---
 
-## Architecture overview
+## Overview
 
 ```
-┌─────────────────── GameFrame ────────────────────┐
-│  (aspect-ratio container, centered in viewport)  │
-│                                                  │
-│  ┌──────────────────────────────────────────┐    │
-│  │         PhaserGame (canvas)              │    │
-│  │  Phaser.Scene ──► gameActor.send(...)    │    │
-│  └──────────────────────────────────────────┘    │
-│                                                  │
-│  ┌──────────────────────────────────────────┐    │
-│  │         HUD (React overlay)              │    │
-│  │  useSelector(gameActor) ──► render UI    │    │
-│  └──────────────────────────────────────────┘    │
-│                                                  │
-│  ┌──────────────────────────────────────────┐    │
-│  │  border overlay (pointer-events: none)   │    │
-│  └──────────────────────────────────────────┘    │
-└──────────────────────────────────────────────────┘
+┌──────────────────────── GameFrame ─────────────────────────┐
+│  PhaserGame  (canvas)   — draws cards, animates deal / flip │
+│  HUD         (React)    — scores, round dots, Hit/Stand     │
+│  ModalsManager (React)  — menu, round result, game over ... │
+│  border overlay (pointer-events: none)                      │
+└─────────────────────────────────────────────────────────────┘
+                  ▲                         │
+                  │ subscribe(snapshot)     │ send(event)
+                  └──────── gameActor ◄─────┘
 ```
 
-### Shared state — `bridge.ts`
+**All game logic lives in the state machine.** Phaser and React are views:
+they read snapshots from `gameActor` and send events to it. Phaser never
+decides outcomes; it only animates what the machine already decided.
 
-`gameActor` — единственный XState actor, создаётся один раз при импорте модуля.  
-Доступен одновременно из Phaser и React:
+### `bridge.ts`
 
-```ts
-// Phaser scene
-this.actor = this.registry.get("gameActor");
-this.actor.send({ type: "WRONG_ANSWER" });
+- `gameActor` — one XState actor created at module load and shared by Phaser
+  (via `game.registry.get("gameActor")`) and React (`useSelector(gameActor, ...)`).
+  It outlives the Phaser scene (HMR, StrictMode), so the scene must unsubscribe
+  on `SHUTDOWN` / `DESTROY` (see `GameScene.create`).
+- `notifyCardRendered(holder, card)` — Phaser calls it when a deal/flip
+  animation finishes; it sends `CARD_RENDERED`, which appends to
+  `displayedPlayerHand` / `displayedEnemyHand`. HUD scores read the *displayed*
+  hands so the number matches what the player sees, not the logical hand.
+- `gameReadySignal` — flipped by `GameScene.create()`; React modals render only
+  after it (so nothing shows over the loader).
+- `animSignal` — `begin()` / `end()` counter around tweens; React disables
+  controls and delays the round-result modal while animations run.
+  Both signals are consumed with `useSyncExternalStore`.
 
-// React HUD
-const state = useSelector(gameActor, s => s.value);
-gameActor.send({ type: "START" });
-```
+### State machine (`machine/index.ts`, id `game-21`)
 
-### State machine — `machine.ts`
+Top level — lifecycle and menus:
 
 ```
 idle ──START──► playing ──PAUSE──► paused ──RESUME──► playing
-                  │
-          SAY_NUMBER / SAY_BOOM
-          (wrong answer or wrong boom)
-                  │
-              gameOver ──START──► playing
+ ▲ │                 └──END_GAME──► gameOver ──START──► playing
+ │ └─OPEN_MENU/ADS/MARKET/RULES/MAP/SETTINGS/PROFILE─► <modal state>
+ └────────────────── CLOSE_* ◄──────────────────────────┘
+(MAIN_MENU from anywhere → idle + resetMatch)
 ```
 
-**Context:** `{ count: number, score: number }`
+Round flow inside `playing`:
 
-| Event | Guard | Action |
-|---|---|---|
-| `SAY_NUMBER` | `correctNumber` | `incrementCount`, `addScore` |
-| `SAY_BOOM` | `correctBoom` | `incrementCount`, `addScore` |
-| `WRONG_ANSWER` | — | → `gameOver` |
-
-Boom правило: число кратно 7 **или** содержит цифру 7.
-
-### GameFrame — `GameFrame/`
-
-Центрирует игровой фрейм в viewport с фиксированным aspect ratio.  
-Динамические размеры передаются через CSS custom properties:
-
-```css
---frame-ratio  /* aspect-ratio значение */
---frame-width  /* min(100vw, 100vh * W/H) */
---frame-height /* min(100vh, 100vw * H/W) */
+```
+dealing ─► playerTurn ──HIT──► playerDraw ─(bust)─► resolving
+              │  ▲                 └──────(ok)─────► playerTurn
+              │  └─────────── enemyDraw ◄─(<17)── enemyTurn
+              ├─STAND / END_TURN─────────────────► enemyTurn ─(>=17)─► resolving
+              ├─SURRENDER────► enemyWin ─► roundOver ─┐
+              └─(natural 21)─► resolving              │
+resolving ─► roundResult ──NEXT_ROUND or after 7s──────┤
+                                                       ▼
+                                   matchOver? ─► gameOver : newRound ─► playerTurn
 ```
 
-Красная рамка — отдельный `div.border` с `z-index: 9999` поверх canvas и HUD.
+**Context:** `deck`, `playerHand`, `enemyHand`, `displayedPlayerHand`,
+`displayedEnemyHand`, `nextHolder`, `winner`, `holeRevealed`, `roundsPlayed`,
+`playerWins`, `enemyWins`, `roundResults`.
 
-### Screen modes — `config.ts`
+**Constants** (`guards.ts`): `ENEMY_HIT_THRESHOLD = 17`, `MATCH_LENGTH = 5`.
+Target is `BLACKJACK_TARGET = 21` (`cards.ts`).
 
-| Mode | Ratio | Use case |
-|---|---|---|
-| `landscape` | 16 : 9 | Desktop / tablet horizontal |
-| `portrait` | 9 : 19.5 | Mobile (iPhone) |
+### Phaser scene
+
+`GameScene` subscribes to the actor; `onSnap(snapshot)` compares hands with
+the previous snapshot to detect a new round (clear + redeal), new cards
+(deal tween), and hole-card reveal (flip tween). Idle → cards cleared.
+`onResize` re-lays out on `Scale.Events.RESIZE`.
+
+### GameFrame
+
+Centers a fixed-aspect frame in the viewport via CSS variables
+(`--frame-ratio`, `--frame-width`, `--frame-height`). The border is a
+separate `div` above canvas and HUD. Modes in `config.ts`:
+`landscape` 16:9 (current), `portrait` 9:19.5.
 
 ---
 
-## How to use
+## How to work with it
 
-### Run locally
+### Run
 
 ```bash
-# From monorepo root — starts all apps:
-pnpm dev
-
-# Only this game (port 3001):
-pnpm --filter @loop-play/game-21boom dev
+pnpm --filter @loop-play/game-21boom dev   # http://localhost:3001
+pnpm dev                                    # whole monorepo (lobby on :3000)
 ```
 
-Open `http://localhost:3001`
+### Add a round action (e.g. Double Down)
 
-### Switch screen mode
+1. Add the event to `RoundEvent` in `machine/types.ts`.
+2. Add a transition from `playerTurn` in `machine/index.ts`; put new context
+   changes in `actions.ts` (register in `setup({ actions })`) and conditions
+   in `guards.ts` (register in `setup({ guards })`).
+3. Add a button in `components/hud/Controls/Controls.tsx` that calls
+   `gameActor.send({ type: "DOUBLE" })`.
+4. Phaser needs changes only if there is a new animation.
 
-В [App.tsx](src/App.tsx) измени проп `mode`:
+### Add a modal
 
-```tsx
-<GameFrame mode="portrait">   // или "landscape"
+1. Add `OPEN_X` / `CLOSE_X` to `GameEvent` and a state `x` in the machine
+   (`idle` → `x` → `idle`).
+2. Create `components/modals/XModal/` and mount it in `ModalsManager` inside
+   `<AnimatedModal show={is("x")}>`.
+3. Open it from the main menu with `gameActor.send({ type: "OPEN_X" })`.
+
+### Animate something in Phaser
+
+Wrap the tween: `animSignal.begin()` before, `animSignal.end()` in `onComplete`.
+If the animation shows a card, call `notifyCardRendered` when it settles.
+
+### Test logic without UI
+
+```ts
+const actor = createActor(gameMachine).start();
+actor.send({ type: "START" });
+actor.send({ type: "STAND" });
+actor.getSnapshot().value; // { playing: "roundResult" } | ...
 ```
-
-### Add a new game event
-
-1. Добавь тип в `GameEvent` в `machine.ts`
-2. Добавь обработчик в нужное состояние в `.createMachine({ states: { playing: { on: { ... } } } })`
-3. Отправь событие из Phaser: `this.actor.send({ type: "..." })` или из React: `gameActor.send({ type: "..." })`
 
 ### Add a new Phaser scene
 
-```ts
-// src/game/scenes/MyScene.ts
-import * as Phaser from "phaser";
-export class MyScene extends Phaser.Scene {
-  constructor() { super({ key: "MyScene" }); }
-  create() {
-    const actor = this.registry.get("gameActor");
-    // ...
-  }
-}
-```
-
-Зарегистрируй в `config.ts`:
-
-```ts
-scene: [GameScene, MyScene],
-```
+Create a class extending `Phaser.Scene`, read the actor with
+`this.registry.get("gameActor")`, and register it in `scene: [...]` in
+`config.ts`.
 
 ---
+
+## Not done yet
+
+- Lobby integration: `@loop-play/game-sdk` is a dependency but unused. Planned:
+  send `game:ready` on scene ready, `game:score` / `game:exit` when entering
+  `gameOver`, and accept `lobby:start` (userId, token).
+- Market / Map / Profile / Settings / Ads modals are placeholders.
 
 ## Port
 
